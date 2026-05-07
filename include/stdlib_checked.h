@@ -129,10 +129,18 @@ size_t wcstombs(char * restrict output : count(n),
                 size_t n);
 
 // This is a Linux-specific extension to stdlib.h.
-#if defined __has_include && __has_include(<linux/limits.h>)
-#include <linux/limits.h>
-char *realpath(const char *path : itype(_Nt_array_ptr<const char>), char *resolved_path : itype(_Array_ptr<char>) count(PATH_MAX)) : itype(_Nt_array_ptr<char>);
-#endif
+// #if defined __has_include && __has_include(<linux/limits.h>)
+// realpath's bounds-safe interface previously included <linux/limits.h>
+// to obtain PATH_MAX. This was removed because Linux kernel host builds
+// put -I./include ahead of /usr/include, which redirects <linux/limits.h>
+// to a kernel-internal header that conflicts with glibc's <sys/types.h>.
+// Stock clang doesn't pull in <linux/limits.h> from <stdlib.h>, so this
+// matches stock behavior. If the bounds-safe interface is needed, declare
+// it locally with PATH_MAX sourced from <limits.h> or a project-specific
+// header. See <link to your tracking issue if you have one>.
+// #include <linux/limits.h>
+// char *realpath(const char *path : itype(_Nt_array_ptr<const char>), char *resolved_path : itype(_Array_ptr<char>) count(PATH_MAX)) : itype(_Nt_array_ptr<char>);
+// #endif
 
 #pragma CHECKED_SCOPE pop
 
